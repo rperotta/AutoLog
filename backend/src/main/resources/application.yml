@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: autolog
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autolog_db
+    username: autolog
+    password: autolog
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8080
+
+# (Opzionale) logging
+logging:
+  level:
+    org.springframework: INFO
+    com.github.[miousername]: DEBUG
