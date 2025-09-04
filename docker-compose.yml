@@ -5,8 +5,8 @@ services:
     container_name: autolog_db
     environment:
       POSTGRES_DB: autolog_db
-      POSTGRES_USER: autolog
-      POSTGRES_PASSWORD: autolog
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
