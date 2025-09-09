@@ -1,5 +1,7 @@
 package com.rperotta.autolog.controller;
 
+import com.rperotta.autolog.dto.UserCreationDTO;
+import com.rperotta.autolog.dto.UserResponseDTO;
 import com.rperotta.autolog.entity.User;
 import com.rperotta.autolog.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,13 +24,13 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Create a new user")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.addUser(user));
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserCreationDTO userCreationDTO) {
+        return ResponseEntity.ok(userService.addUser(userCreationDTO));
     }
 
     @GetMapping
     @Operation(summary = "Get all users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 

@@ -1,5 +1,7 @@
 package com.rperotta.autolog.controller;
 
+import com.rperotta.autolog.dto.VehicleCreationDTO;
+import com.rperotta.autolog.dto.VehicleResponseDTO;
 import com.rperotta.autolog.entity.Vehicle;
 import com.rperotta.autolog.service.VehicleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,8 +30,8 @@ public class VehicleController {
 
     @PostMapping
     @Operation(summary = "Add a new vehicle", description = "Creates and saves a new vehicle for the current user")
-    public Vehicle addVehicle(@RequestBody Vehicle vehicle) {
-        return vehicleService.addVehicle(vehicle);
+    public VehicleResponseDTO addVehicle(@RequestBody VehicleCreationDTO vehicleCreationDTO) {
+        return vehicleService.addVehicle(vehicleCreationDTO);
     }
 
     @GetMapping("/{id}")
