@@ -3,20 +3,18 @@ package com.rperotta.autolog.service;
 import com.rperotta.autolog.dto.UserCreationDTO;
 import com.rperotta.autolog.dto.UserResponseDTO;
 import com.rperotta.autolog.entity.User;
+import com.rperotta.autolog.exception.UserNotFoundException;
 import com.rperotta.autolog.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public UserResponseDTO addUser(UserCreationDTO userCreationDTO) {
         User user = new User();
@@ -26,35 +24,37 @@ public class UserService {
         user.setVehicles(new ArrayList<>());
         User savedUser = userRepository.save(user);
 
-        // 3. Mappa l'entità salvata nel DTO di risposta
-        UserResponseDTO responseDto = new UserResponseDTO();
-        responseDto.setId(savedUser.getId());
-        responseDto.setUsername(savedUser.getUsername());
-        responseDto.setRole(savedUser.getRole());
-
-        // 4. Restituisci il DTO di risposta
-        return responseDto;
+        return toUserResponseDTO(savedUser);
     }
 
     public List<UserResponseDTO> getAllUsers() {
-        List<User> userList = userRepository.findAll();
-        List<UserResponseDTO> filteredUserList = new ArrayList<>();
-        for(User u : userList){
-            UserResponseDTO uRDTO = new UserResponseDTO();
-            uRDTO.setId(u.getId());
-            uRDTO.setUsername(u.getUsername());
-            uRDTO.setRole(u.getRole());
-            filteredUserList.add(uRDTO);
-        }
-        return filteredUserList;
+        return userRepository.findAll()
+                .stream()
+                .map(this::toUserResponseDTO)
+                .toList();
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    public UserResponseDTO getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(this::toUserResponseDTO)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+    }
+
+    public User getUserEntityById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
     }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    private UserResponseDTO toUserResponseDTO(User user) {
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setRole(user.getRole());
+        return dto;
     }
 }
 

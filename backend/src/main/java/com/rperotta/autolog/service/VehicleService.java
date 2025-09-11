@@ -5,14 +5,12 @@ import com.rperotta.autolog.dto.VehicleResponseDTO;
 import com.rperotta.autolog.entity.DistanceUnit;
 import com.rperotta.autolog.entity.User;
 import com.rperotta.autolog.entity.Vehicle;
+import com.rperotta.autolog.exception.VehicleNotFoundException;
 import com.rperotta.autolog.repository.VehicleRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,9 +20,35 @@ public class VehicleService {
 
 
     public VehicleResponseDTO addVehicle(VehicleCreationDTO vehicleDto) {
-        User owner = userService.getUserById(vehicleDto.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + vehicleDto.getOwnerId()));
+        Vehicle newVehicle = buildVehicle(vehicleDto);
+        Vehicle savedVehicle = vehicleRepository.save(newVehicle);
+        return toVehicleResponseDTO(savedVehicle);
+    }
 
+    public List<VehicleResponseDTO> getAllVehicles() {
+        return vehicleRepository.findAll()
+                .stream()
+                .map(this::toVehicleResponseDTO)
+                .toList();
+    }
+
+    public VehicleResponseDTO getVehicleById(Long id) {
+        return vehicleRepository.findById(id)
+                .map(this::toVehicleResponseDTO)
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle with id " + id + " not found"));
+    }
+
+    public Vehicle getVehicleEntityById(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new VehicleNotFoundException("Vehicle with id " + id + " not found"));
+    }
+
+    public void deleteVehicle(Long id) {
+        vehicleRepository.deleteById(id);
+    }
+
+    public Vehicle buildVehicle(VehicleCreationDTO vehicleDto) {
+        User owner = userService.getUserEntityById(vehicleDto.getOwnerId());
         Vehicle newVehicle = new Vehicle();
         newVehicle.setMake(vehicleDto.getMake());
         newVehicle.setModel(vehicleDto.getModel());
@@ -32,11 +56,11 @@ public class VehicleService {
         newVehicle.setLicensePlate(vehicleDto.getLicensePlate());
         newVehicle.setMileage(vehicleDto.getMileage());
         newVehicle.setDistanceUnit(DistanceUnit.valueOf(vehicleDto.getDistanceUnit()));
-
         newVehicle.setOwner(owner);
+        return newVehicle;
+    }
 
-        Vehicle savedVehicle = vehicleRepository.save(newVehicle);
-
+    public VehicleResponseDTO toVehicleResponseDTO(Vehicle savedVehicle) {
         VehicleResponseDTO responseDTO = new VehicleResponseDTO();
         responseDTO.setId(savedVehicle.getId());
         responseDTO.setMake(savedVehicle.getMake());
@@ -46,20 +70,7 @@ public class VehicleService {
         responseDTO.setMileage(savedVehicle.getMileage());
         responseDTO.setDistanceUnit(String.valueOf(savedVehicle.getDistanceUnit()));
         responseDTO.setOwnerId(savedVehicle.getOwner().getId());
-
         return responseDTO;
-    }
-
-    public List<Vehicle> getAllVehicles() {
-        return vehicleRepository.findAll();
-    }
-
-    public Optional<Vehicle> getVehicleById(Long id) {
-        return vehicleRepository.findById(id);
-    }
-
-    public void deleteVehicle(Long id) {
-        vehicleRepository.deleteById(id);
     }
 }
 
