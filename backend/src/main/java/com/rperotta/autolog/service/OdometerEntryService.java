@@ -5,6 +5,8 @@ import com.rperotta.autolog.dto.OdometerEntryResponseDTO;
 import com.rperotta.autolog.entity.OdometerEntry;
 import com.rperotta.autolog.entity.TireType;
 import com.rperotta.autolog.entity.Vehicle;
+import com.rperotta.autolog.exception.OdometerEntryNotFoundException;
+import com.rperotta.autolog.exception.VehicleNotFoundException;
 import com.rperotta.autolog.repository.OdometerEntryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,12 +29,17 @@ public class OdometerEntryService {
         return odometerEntryRepository.findAll();
     }
 
-    public Optional<OdometerEntry> getOdometerEntryById(Long id) {
-        return odometerEntryRepository.findById(id);
+    public OdometerEntryResponseDTO getOdometerEntryById(Long id) {
+        return odometerEntryRepository.findById(id)
+                .map(this::toOdometerEntryResponseDTO)
+                .orElseThrow(() -> new OdometerEntryNotFoundException("Odometer entry with id " + id + " not found"));
     }
 
-    public Optional<OdometerEntry> getOdometerEntriesByVehicleId(Long id) {
-        return odometerEntryRepository.findById(id);
+    public List<OdometerEntryResponseDTO> getOdometerEntriesByVehicleId(Long id) {
+        return odometerEntryRepository.findByVehicleIdOrderByDateDesc(id)
+                .stream()
+                .map(this::toOdometerEntryResponseDTO)
+                .toList();
     }
 
     public void deleteOdometerEntry(Long id) {

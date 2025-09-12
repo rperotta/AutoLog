@@ -1,5 +1,6 @@
 package com.rperotta.autolog.repository;
 
+import com.rperotta.autolog.dto.OdometerEntryResponseDTO;
 import com.rperotta.autolog.entity.OdometerEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
