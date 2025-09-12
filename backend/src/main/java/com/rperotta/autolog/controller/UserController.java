@@ -39,7 +39,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a User", description = "Removes a user from the database by its ID")
     //TODO: send a response about the deletion (success/didn't find the user)
-    public void deleteVehicle(@PathVariable Long id) {
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 }
